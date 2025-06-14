@@ -48,11 +48,20 @@ jobs:
           echo "Message: ${{ steps.test-custom.outputs.message }}"
           echo "Time: ${{ steps.test-custom.outputs.time }}"
       
-      - name: Test with matrix
-        strategy:
-          matrix:
-            greeting: ['Hello', 'Hi', 'Konnichiwa', 'Bonjour']
-            name: ['World', 'GitHub', 'Actions']
+
+  test-matrix:
+    runs-on: ubuntu-latest
+    name: Test with matrix
+    strategy:
+      matrix:
+        greeting: ['Hello', 'Hi', 'Konnichiwa', 'Bonjour']
+        name: ['World', 'GitHub', 'Actions']
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Test composite action with matrix
         uses: ./composite-action
         with:
           greeting: ${{ matrix.greeting }}
