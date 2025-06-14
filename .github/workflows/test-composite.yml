@@ -1,0 +1,76 @@
+name: Test Composite Action
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      name:
+        description: 'Name to greet'
+        required: false
+        default: 'GitHub Actions'
+      greeting:
+        description: 'Greeting message'
+        required: false
+        default: 'Hello'
+
+jobs:
+  test-composite:
+    runs-on: ubuntu-latest
+    name: Test Composite Action
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Test composite action with default inputs
+        id: test-default
+        uses: ./composite-action
+        with:
+          name: 'World'
+      
+      - name: Test composite action with custom inputs
+        id: test-custom
+        uses: ./composite-action
+        with:
+          name: ${{ github.event.inputs.name || 'GitHub Actions' }}
+          greeting: ${{ github.event.inputs.greeting || 'Konnichiwa' }}
+      
+      - name: Display outputs
+        run: |
+          echo "Default test outputs:"
+          echo "Message: ${{ steps.test-default.outputs.message }}"
+          echo "Time: ${{ steps.test-default.outputs.time }}"
+          echo ""
+          echo "Custom test outputs:"
+          echo "Message: ${{ steps.test-custom.outputs.message }}"
+          echo "Time: ${{ steps.test-custom.outputs.time }}"
+      
+      - name: Test with matrix
+        strategy:
+          matrix:
+            greeting: ['Hello', 'Hi', 'Konnichiwa', 'Bonjour']
+            name: ['World', 'GitHub', 'Actions']
+        uses: ./composite-action
+        with:
+          greeting: ${{ matrix.greeting }}
+          name: ${{ matrix.name }}
+
+  test-different-os:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    name: Test on ${{ matrix.os }}
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Test composite action
+        uses: ./composite-action
+        with:
+          name: ${{ matrix.os }}
+          greeting: 'Hello from'

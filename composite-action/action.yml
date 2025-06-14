@@ -1,0 +1,65 @@
+name: 'Composite Hello World'
+description: 'A composite action that demonstrates multiple steps'
+author: 'Tutorial'
+
+inputs:
+  name:
+    description: 'Name to greet'
+    required: true
+    default: 'World'
+  greeting:
+    description: 'Greeting message'
+    required: false
+    default: 'Hello'
+
+outputs:
+  message:
+    description: 'The greeting message'
+    value: ${{ steps.greeting.outputs.message }}
+  time:
+    description: 'The time when the action was run'
+    value: ${{ steps.time.outputs.time }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Print greeting
+      id: greeting
+      shell: bash
+      run: |
+        echo "Greeting: ${{ inputs.greeting }} ${{ inputs.name }}!"
+        echo "message=${{ inputs.greeting }} ${{ inputs.name }}!" >> $GITHUB_OUTPUT
+    
+    - name: Get current time
+      id: time
+      shell: bash
+      run: |
+        current_time=$(date +'%Y-%m-%d %H:%M:%S')
+        echo "Current time: $current_time"
+        echo "time=$current_time" >> $GITHUB_OUTPUT
+    
+    - name: Install dependencies (example)
+      shell: bash
+      run: |
+        echo "Installing dependencies..."
+        # Example: npm install, pip install, etc.
+        echo "Dependencies installed successfully"
+    
+    - name: Run tests (example)
+      shell: bash
+      run: |
+        echo "Running tests..."
+        # Example: npm test, pytest, etc.
+        echo "All tests passed!"
+    
+    - name: Summary
+      shell: bash
+      run: |
+        echo "## Summary" >> $GITHUB_STEP_SUMMARY
+        echo "- Greeting: ${{ inputs.greeting }} ${{ inputs.name }}!" >> $GITHUB_STEP_SUMMARY
+        echo "- Time: ${{ steps.time.outputs.time }}" >> $GITHUB_STEP_SUMMARY
+        echo "- Status: ✅ Success" >> $GITHUB_STEP_SUMMARY
+
+branding:
+  icon: 'message-circle'
+  color: 'blue'
